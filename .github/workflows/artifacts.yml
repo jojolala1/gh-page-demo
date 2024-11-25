@@ -7,35 +7,33 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: code
+      - name: Checkout code
         uses: actions/checkout@v3
       - name: Install Node v18
         uses: actions/setup-node@v3
         with:
           node-version: 18
-      - name: Install
-        uses: npm install
-      - name: test
-        uses: npm run test >test.txt
-        -name: Upload test
+      - name: Install dependencies
+        run: npm install
+      - name: Run tests and save output
+        run: npm run test > test.txt
+      - name: Upload test results
         uses: actions/upload-artifact@v3
         with:
-          name: testing
+          name: test-results
           path: test.txt
+
   download-test:
-    name: Download Test
+    name: Download Test Results
     runs-on: ubuntu-latest
     needs: test
     steps:
-      - name: DownloadTest
-        uses: ations/download-artifact@v3
+      - name: Download Test Artifact
+        uses: actions/download-artifact@v3
         with:
-          name: testing
-      - name: Print result
+          name: test-results
+      - name: Print Test Results
         shell: bash
         run: |
-          value=`cat test.text`
-          echo value
-
-
-
+          value=$(cat test.txt)
+          echo "Test Results: $value"
