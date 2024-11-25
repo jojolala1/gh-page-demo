@@ -1,38 +1,57 @@
-name: Test react App
-permissions: 
+name: Deploy React App
+permissions:
   contents: write
 on:
   workflow_dispatch:
   push:
-      branches:
-          - main
-          - 'hotfix-*'
-          - 'feature/**'
-  pull_request:
-      types:
-          - opened
+    branches:
+      - main
 jobs:
   test:
-      runs-on: ubuntu-latest
-      steps:
-        - name: Code
-          uses: actions/checkout@v3
-        - name: Install Node v18
-          uses: actions/setup-node@v3
-          with:
-            node-version: 18
-        - name: Install
-          run: npm install
-        - name: Build
-          run: npm run build
-        - name: Deploy
-          uses: JamesIves/github-pages-deploy-action@4.1.1
-          with:
-            folder: build
-            branch: gh-pages
-
-
-
-
-
-        
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code
+        uses: actions/checkout@v3
+      - name: Install Node v18
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Install
+        run: npm install
+      - name: Test
+        run: npm run test
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code
+        uses: actions/checkout@v3
+      - name: Install Node v18
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Install
+        run: npm install
+      - name: Build
+        run: npm run build
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code
+        uses: actions/checkout@v3
+      - name: Install Node v18
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Install
+        run: npm install
+      - name: Build
+        run: npm run build
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@4.1.1
+        with:
+          folder: build
+          branch: gh-pages
+        env:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
